@@ -21,7 +21,7 @@ This application presents users with a poll asking: **"Which DevOps tool do you 
 ## 📆 Screenshots
 
 ### ✅ Poll Form Interface:
-![Poll Screenshot](screenshots/Screenshot_20250405_144216.png)
+![Poll Screenshot](screenshots/image1.png)
 
 ### ✉️ Form Submission Layout:
 ![Submission Screenshot](screenshots/Screenshot_20250405_144314.png)
