@@ -23,10 +23,6 @@ This application presents users with a poll asking: **"Which DevOps tool do you 
 ### ✅ Poll Form Interface:
 ![Poll Screenshot](screenshots/image1.png)
 
-### ✉️ Form Submission Layout:
-![Submission Screenshot](screenshots/Screenshot_20250405_144314.png)
-
-> Place these images in a folder named `screenshots/` inside your project root directory for proper rendering.
 
 ---
 
@@ -41,7 +37,7 @@ This application presents users with a poll asking: **"Which DevOps tool do you 
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/devops-poll-app.git
+git clone https://github.com/joshiharshal/devops-poll-app.git
 cd devops-poll-app
 ```
 
@@ -77,8 +73,8 @@ devops-poll-app/
 │   ├── models.py
 │   └── urls.py
 ├── screenshots/
-│   ├── Screenshot_20250405_144216.png
-│   └── Screenshot_20250405_144314.png
+│   ├── image1.png
+│   
 ├── manage.py
 ├── requirements.txt
 └── README.md
