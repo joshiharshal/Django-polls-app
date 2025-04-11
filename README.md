@@ -98,3 +98,8 @@ GitHub: [@joshiharshal](https://github.com/joshiharshal)
 
 Let me know if you want help with any of these upgrades!
 
+## ✏️ License
+
+- This project is licensed under the MIT License. Feel free to use, modify, and share it.
+
+- See the LICENSE file for more details.
