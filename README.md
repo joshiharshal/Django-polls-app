@@ -138,6 +138,8 @@ Django-polls-app/
 └── README.md                 # Project documentation
 ```
 
+docker build -t harshal001/django-polls-app:latest .
+docker push harshal001/django-polls-app:latest
 ---
 
 ## 👥 Author
