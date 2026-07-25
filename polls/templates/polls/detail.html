@@ -1,12 +1,53 @@
-<form action="{% url 'polls:vote' question.id %}" method="post">
-    {% csrf_token %}
-    <fieldset>
-        <legend><h1>{{ question.question_text }}</h1></legend>
-        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-        {% for choice in question.choice_set.all %}
-            <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
-            <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
-        {% endfor %}
-    </fieldset>
-    <input type="submit" value="Vote">
-    </form>
+{% extends "polls/base.html" %}
+
+{% block title %}Vote: {{ question.question_text }} - QuickPolls{% endblock %}
+
+{% block content %}
+<div class="back-nav animate-fade-in">
+    <a href="{% url 'polls:index' %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="vote-container animate-slide-up">
+    <div class="vote-card">
+        <div class="vote-card-header">
+            <span class="question-tag"><i class="fa-solid fa-circle-question"></i> Question</span>
+            <h1 class="question-title">{{ question.question_text }}</h1>
+        </div>
+
+        {% if error_message %}
+            <div class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+                <span class="alert-text">{{ error_message }}</span>
+            </div>
+        {% endif %}
+
+        <form action="{% url 'polls:vote' question.id %}" method="post" class="vote-form">
+            {% csrf_token %}
+            <div class="choices-list">
+                {% for choice in question.choice_set.all %}
+                    <div class="choice-item">
+                        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" class="choice-radio">
+                        <label for="choice{{ forloop.counter }}" class="choice-card">
+                            <div class="radio-indicator">
+                                <div class="radio-dot"></div>
+                            </div>
+                            <span class="choice-label-text">{{ choice.choice_text }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="vote-actions">
+                <button type="submit" class="btn btn-primary btn-submit">
+                    Submit Vote <i class="fa-solid fa-paper-plane btn-icon-right"></i>
+                </button>
+                <a href="{% url 'polls:results' question.id %}" class="btn btn-secondary">
+                    View Results <i class="fa-solid fa-chart-simple btn-icon-right"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

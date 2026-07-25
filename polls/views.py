@@ -34,7 +34,24 @@ class DetailView(generic.DetailView):
 class ResultsView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
-                       
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        question = self.get_object()
+        total_votes = sum(choice.votes for choice in question.choice_set.all())
+        choices_with_percentage = []
+        for choice in question.choice_set.all():
+            percentage = (choice.votes / total_votes * 100) if total_votes > 0 else 0
+            choices_with_percentage.append({
+                'id': choice.id,
+                'choice_text': choice.choice_text,
+                'votes': choice.votes,
+                'percentage': round(percentage, 1)
+            })
+        context['choices_with_percentage'] = choices_with_percentage
+        context['total_votes'] = total_votes
+        return context
+
 def vote(request, question_id):
     return HttpResponse("You're voting on question %s." % question_id)
 

@@ -1,0 +1,55 @@
+{% extends "polls/base.html" %}
+
+{% block title %}QuickPolls - Experience Modern Polling{% endblock %}
+
+{% block content %}
+<div class="hero-section animate-fade-in">
+    <div class="hero-badge">
+        <i class="fa-solid fa-rocket"></i> Django & Docker Powered
+    </div>
+    <h1 class="hero-title">Experience Modern Polling</h1>
+    <p class="hero-subtitle">
+        Create, vote, and analyze. A glassmorphic web application built with robust backend logic, streamlined deployment workflows, and clean design patterns.
+    </p>
+    <div class="hero-actions">
+        <a href="{% url 'polls:index' %}" class="btn btn-primary btn-lg">
+            Launch Dashboard <i class="fa-solid fa-arrow-right btn-icon-right"></i>
+        </a>
+        <a href="/admin/" class="btn btn-secondary btn-lg">
+            <i class="fa-solid fa-lock"></i> Admin Console
+        </a>
+    </div>
+</div>
+
+<div class="features-grid animate-slide-up">
+    <div class="feature-card">
+        <div class="feature-icon-wrapper">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h3 class="feature-title">Real-Time Results</h3>
+        <p class="feature-desc">
+            Watch voting statistics compute instantly with styled visual progress percentages on submitting your response.
+        </p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon-wrapper">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <h3 class="feature-title">Premium Aesthetics</h3>
+        <p class="feature-desc">
+            A beautiful, custom dark-mode interface crafted with fluid typography, gradients, and micro-interactions.
+        </p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon-wrapper">
+            <i class="fa-solid fa-boxes-stacked"></i>
+        </div>
+        <h3 class="feature-title">Containerized & CI/CD</h3>
+        <p class="feature-desc">
+            Includes multi-stage Docker builds and production-ready compose files, completely automated via GitHub Actions.
+        </p>
+    </div>
+</div>
+{% endblock %}

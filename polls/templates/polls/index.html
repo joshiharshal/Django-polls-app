@@ -1,20 +1,47 @@
+{% extends "polls/base.html" %}
 
-{% if latest_question_list %}
-    <ul>
-    {% for question in latest_question_list %}
-    <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>    {% endfor %}
-    </ul>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %}
-<style>
-  li a {
-    color: rgb(8, 9, 11);
-}
+{% block title %}Dashboard - QuickPolls{% endblock %}
 
-body {
-    background-image: url("/static/polls/images/background2.jpg");
-    background-size: cover; 
-  }
-  
-</style>
+{% block content %}
+<div class="dashboard-header animate-fade-in">
+    <div class="header-text-group">
+        <h1 class="page-title">Active Polls</h1>
+        <p class="page-subtitle">Cast your vote, share your opinion, and see what others think in real-time.</p>
+    </div>
+</div>
+
+<div class="polls-grid animate-slide-up">
+    {% if latest_question_list %}
+        {% for question in latest_question_list %}
+            <div class="poll-card">
+                <div class="poll-card-accent"></div>
+                <div class="poll-card-body">
+                    <span class="poll-meta">
+                        <i class="fa-regular fa-calendar"></i> {{ question.pub_date|date:"F d, Y" }}
+                    </span>
+                    <h2 class="poll-title">{{ question.question_text }}</h2>
+                    <div class="poll-stats">
+                        <span class="stat-item">
+                            <i class="fa-solid fa-list-ul"></i> {{ question.choice_set.count }} option{{ question.choice_set.count|pluralize }}
+                        </span>
+                    </div>
+                </div>
+                <div class="poll-card-footer">
+                    <a href="{% url 'polls:detail' question.id %}" class="btn btn-primary btn-block">
+                        Vote Now <i class="fa-solid fa-chevron-right btn-icon-right"></i>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-polls-card">
+            <i class="fa-solid fa-circle-exclamation no-polls-icon"></i>
+            <h3>No polls are available.</h3>
+            <p>Check back later or log in to the admin panel to create a new poll.</p>
+            <a href="/admin/" class="btn btn-secondary">
+                <i class="fa-solid fa-plus"></i> Go to Admin Panel
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

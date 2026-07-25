@@ -1,9 +1,48 @@
-<h1>{{ question.question_text }}</h1>
+{% extends "polls/base.html" %}
 
-<ul>
-{% for choice in question.choice_set.all %}
-    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
-{% endfor %}
-</ul>
+{% block title %}Results: {{ question.question_text }} - QuickPolls{% endblock %}
 
-<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+{% block content %}
+<div class="back-nav animate-fade-in">
+    <a href="{% url 'polls:index' %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="results-container animate-slide-up">
+    <div class="results-card">
+        <div class="results-card-header">
+            <span class="results-tag"><i class="fa-solid fa-chart-pie"></i> Live Results</span>
+            <h1 class="question-title">{{ question.question_text }}</h1>
+            <p class="total-votes-count">
+                Total Votes cast: <strong class="badge">{{ total_votes }}</strong>
+            </p>
+        </div>
+
+        <div class="results-body">
+            {% for choice in choices_with_percentage %}
+                <div class="result-row">
+                    <div class="result-info">
+                        <span class="choice-text">{{ choice.choice_text }}</span>
+                        <span class="vote-stats">
+                            <strong class="vote-count">{{ choice.votes }} vote{{ choice.votes|pluralize }}</strong>
+                            <span class="vote-pct">{{ choice.percentage }}%</span>
+                        </span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="--target-width: {{ choice.percentage }}%;"></div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No options available.</p>
+            {% endfor %}
+        </div>
+
+        <div class="results-footer">
+            <a href="{% url 'polls:detail' question.id %}" class="btn btn-primary">
+                <i class="fa-solid fa-rotate-left"></i> Vote Again
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

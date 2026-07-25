@@ -1,4 +1,4 @@
-#!/home/harshal/Django/django-project/venv/bin/python
+#!/home/harshal/Tasks/Django-project/Django-polls-app/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
