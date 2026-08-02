@@ -22,7 +22,7 @@ permissions:
   security-events: write
   pull-requests: write
   issues: write
-  id-token: write # Required for Cosign keyless signing
+  id-token: write # Required for Cosign keyless signing and OIDC authentication
 
 jobs:
   # ----------------------------------------------------
@@ -85,7 +85,7 @@ jobs:
           path: coverage.xml
           retention-days: 14
 
-      - name: Create Job Summary
+      - name: Create job summary
         if: always()
         run: |
           echo "### Test Execution Results" >> $GITHUB_STEP_SUMMARY
@@ -289,22 +289,132 @@ jobs:
         run: |
           cosign sign --yes "harshal001/django-polls-app:${{ steps.get_tag.outputs.TAG }}"
 
-      # Slack Alert on success
-      - name: Notify Slack Build Success
+  # ----------------------------------------------------
+  # Stage 5: Deploy to Staging
+  # ----------------------------------------------------
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-and-push
+    if: github.ref == 'refs/heads/DevOps' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: http://staging.polls.local
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: 'v3.15.2'
+
+      - name: Helm Deploy to Staging & Auto-Rollback on Failure
+        run: |
+          helm upgrade --install django-polls-app ./helm/django-polls-app \
+            --namespace django-polls \
+            --create-namespace \
+            --values ./helm/django-polls-app/values-staging.yaml \
+            --set web.image.tag=${{ github.sha }} \
+            --wait \
+            --timeout 10m0s || {
+              echo "Staging Deployment Failed! Initiating Rollback..."
+              helm rollback django-polls-app --namespace django-polls
+              exit 1
+            }
+
+      - name: Verify Web Deployment Health
+        run: |
+          kubectl rollout status deployment/django-polls-app-web --namespace django-polls --timeout=5m
+
+      - name: Run Staging In-Cluster Smoke Tests
+        run: |
+          echo "Verifying Health Check..."
+          kubectl run smoke-staging --rm -i --restart=Never \
+            --image=curlimages/curl --namespace=django-polls -- \
+            curl -v --silent --fail --max-time 10 http://django-polls-app-web:8000/health/
+          
+          echo "Verifying Metrics..."
+          kubectl run smoke-metrics-staging --rm -i --restart=Never \
+            --image=curlimages/curl --namespace=django-polls -- \
+            curl -v --silent --fail --max-time 10 http://django-polls-app-web:8000/metrics/
+
+      - name: Notify Slack Staging Success
         if: success() && secrets.SLACK_WEBHOOK != ''
         uses: rtCamp/action-slack-notify@v2.3.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR: '#00FF00'
-          SLACK_TITLE: 'Docker Build & Push Successful'
-          SLACK_MESSAGE: 'Successfully built, scanned, and signed image: harshal001/django-polls-app:${{ steps.get_tag.outputs.TAG }}'
+          SLACK_TITLE: 'Staging Deploy Successful'
+          SLACK_MESSAGE: 'Successfully deployed version ${{ github.sha }} to Staging.'
 
-      # Slack Alert on failure
-      - name: Notify Slack Build Failure
-        if: failure() && secrets.SLACK_WEBHOOK != ''
+  # ----------------------------------------------------
+  # Stage 6: Deploy to Production (Manual Approval via Env Guard)
+  # ----------------------------------------------------
+  deploy-production:
+    name: Deploy to Production
+    needs: build-and-push
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: http://polls.local
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: 'v3.15.2'
+
+      - name: Helm Deploy to Production & Auto-Rollback on Failure
+        run: |
+          helm upgrade --install django-polls-app ./helm/django-polls-app \
+            --namespace django-polls \
+            --create-namespace \
+            --values ./helm/django-polls-app/values-production.yaml \
+            --set web.image.tag=${{ github.ref_name }} \
+            --wait \
+            --timeout 10m0s || {
+              echo "Production Deployment Failed! Initiating Rollback..."
+              helm rollback django-polls-app --namespace django-polls
+              exit 1
+            }
+
+      - name: Verify Web Deployment Health
+        run: |
+          kubectl rollout status deployment/django-polls-app-web --namespace django-polls --timeout=5m
+
+      - name: Run Production In-Cluster Smoke Tests
+        run: |
+          echo "Verifying Health Check..."
+          kubectl run smoke-prod --rm -i --restart=Never \
+            --image=curlimages/curl --namespace=django-polls -- \
+            curl -v --silent --fail --max-time 10 http://django-polls-app-web:8000/health/
+          
+          echo "Verifying Metrics..."
+          kubectl run smoke-metrics-prod --rm -i --restart=Never \
+            --image=curlimages/curl --namespace=django-polls -- \
+            curl -v --silent --fail --max-time 10 http://django-polls-app-web:8000/metrics/
+
+      - name: Notify Slack Production Release Success
+        if: success() && secrets.SLACK_WEBHOOK != ''
         uses: rtCamp/action-slack-notify@v2.3.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_COLOR: '#FF0000'
-          SLACK_TITLE: 'Docker Build & Push Failed'
-          SLACK_MESSAGE: 'Failed to build/push/sign image for version: ${{ steps.get_tag.outputs.TAG }}'
+          SLACK_COLOR: '#36a64f'
+          SLACK_TITLE: '🚀 Production Release Successful'
+          SLACK_MESSAGE: 'Successfully released version ${{ github.ref_name }} to Production environment!'
