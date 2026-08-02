@@ -175,7 +175,7 @@ jobs:
 
       # Slack Alert on failure
       - name: Notify Security Failure
-        if: failure() && secrets.SLACK_WEBHOOK != ''
+        if: ${{ failure() && secrets.SLACK_WEBHOOK != '' }}
         uses: rtCamp/action-slack-notify@v2.3.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -346,7 +346,7 @@ jobs:
             curl -v --silent --fail --max-time 10 http://django-polls-app-web:8000/metrics/
 
       - name: Notify Slack Staging Success
-        if: success() && secrets.SLACK_WEBHOOK != ''
+        if: ${{ success() && secrets.SLACK_WEBHOOK != '' }}
         uses: rtCamp/action-slack-notify@v2.3.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -411,7 +411,7 @@ jobs:
             curl -v --silent --fail --max-time 10 http://django-polls-app-web:8000/metrics/
 
       - name: Notify Slack Production Release Success
-        if: success() && secrets.SLACK_WEBHOOK != ''
+        if: ${{ success() && secrets.SLACK_WEBHOOK != '' }}
         uses: rtCamp/action-slack-notify@v2.3.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
