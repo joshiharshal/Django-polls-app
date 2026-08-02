@@ -89,25 +89,43 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 
 ---
 
-## 🚀 CI/CD Pipeline (GitHub Actions)
+## 🚀 Enterprise CI/CD Pipeline (GitHub Actions)
 
-This project has a pre-configured CI/CD workflow located at `.github/workflows/deploy.yml` that triggers on pushes to `main` and `DevOps` branches.
+This project contains an advanced, production-ready CI/CD pipeline configured at `.github/workflows/deploy.yml` that automates testing, security compliance, quality gates, AI code reviews, multi-architecture image builds, and container signing.
 
-### Workflow Pipeline Steps:
-1. **Build and Push**: Builds the production multi-stage Docker image and pushes it to Docker Hub under the tag `harshal001/django-polls-app`.
-2. **Deploy to VPS**: Securely copies the `docker-compose.yml` to your VPS and runs `docker compose pull && docker compose up -d` to deploy.
+### 📋 Pipeline Stages
 
-### Required GitHub Secrets:
-To use this pipeline, configure the following secrets in your GitHub repository settings:
+The pipeline is split into distinct security and quality-assurance stages:
+1. **Lint & Test**: Performs Python code linting via `flake8` and runs Django unit and integration tests.
+2. **Quality Gate**: Enforces a strict **minimum of 80% test coverage** using `coverage`. If coverage drops below 80%, the build fails and blocks code merging.
+3. **Security Gates**:
+   - **GitLeaks**: Scans the commit history to detect accidentally committed credentials and secrets.
+   - **Trivy (FS)**: Scans filesystem dependencies for critical vulnerabilities, failing the pipeline if any are found.
+   - **Semgrep SAST**: Performs static analysis for common Django/Python anti-patterns and vulnerabilities.
+   - **CodeQL**: Standard GitHub SAST scanning for deeper vulnerability validation.
+   - **SBOM**: Automatically compiles and uploads a CycloneDX Software Bill of Materials (SBOM).
+4. **AI Code Review**: Run on pull requests using **OpenCode and Antigravity AI**. It scans your diff, analyzes Dockerfiles/workflows, and automatically comments feedback directly onto the PR.
+5. **Multi-Arch Build & Push**: Automatically sets up Docker Buildx and QEMU to compile the application for both `linux/amd64` and `linux/arm64` simultaneously.
+6. **Container Image Scanning**: Runs Trivy container scans on the final image.
+7. **Cosign Signatures**: Signs the published image using OIDC keyless signing, providing cryptographically verifiable container integrity.
 
-| Secret | Description |
-| --- | --- |
-| **`DOCKER_HUB_USERNAME`** | Your Docker Hub username (e.g. `harshal001`) |
-| **`DOCKER_HUB_ACCESS_TOKEN`** | Docker Hub Access Token (not your password) |
-| **`VPS_HOST`** | Your VPS IP or domain (e.g. `192.168.x.x` or `server.example.com`) |
-| **`VPS_USERNAME`** | VPS SSH username (e.g. `ubuntu`, `root`) |
-| **`VPS_SSH_KEY`** | Your private SSH key (contents of `~/.ssh/id_ed25519` or `~/.ssh/id_rsa`) |
-| **`VPS_DEPLOY_PATH`** | Directory on the VPS where `docker-compose.yml` should be copied (e.g. `/home/ubuntu/app`) |
+### 🔑 Required GitHub Secrets
+
+To activate this pipeline, configure the following secrets in your repository settings (**Settings > Secrets and variables > Actions > Repository secrets**):
+
+| Secret Name | Description | Example / Recommended Value |
+| :--- | :--- | :--- |
+| `DOCKER_USERNAME` | Docker Hub username. | `harshal001` |
+| `DOCKER_PASSWORD` | Docker Hub Personal Access Token (PAT). | `dckr_pat_...` |
+| `SLACK_WEBHOOK` | Webhook URL for Slack build notifications. | `https://hooks.slack.com/services/...` |
+| `OPENCODE_API_KEY` | API Key for OpenCode review API. | `oc_api_...` |
+
+### 🛠️ Workflow Triggers
+
+- **Pull Requests (to main/DevOps)**: Runs linting, tests, coverage verification, security scans, and triggers the AI Code Review comment on the PR. Does not build or push Docker images.
+- **Pushes (to main/DevOps)**: Runs all tests, scans, builds the multi-arch Docker image, tags it with the Git Commit SHA, pushes it to Docker Hub, signs it with Cosign, and sends a Slack notification.
+- **Release Tags (`v*`)**: Triggered when a semantic version tag (e.g. `v1.0.0`) is pushed. Builds the production image, tags it with the release tag name, signs it, and posts a Slack release announcement.
+
 
 ---
 
