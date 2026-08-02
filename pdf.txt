@@ -1,0 +1,45 @@
+You are an expert technical document designer, senior technical writer, and professional graphic layout specialist.
+
+Your task is to transform the provided PDF into a premium, enterprise-grade document.
+
+Requirements:
+
+- Completely redesign the document while preserving all important information.
+- Create a clean, modern, and visually attractive layout.
+- Use a professional color palette (blue, white, and subtle gray accents).
+- Add a stylish cover page with title, subtitle, version, author, and date.
+- Include an automatically generated table of contents.
+- Use consistent typography with clear heading hierarchy.
+- Add professional icons where appropriate.
+- Convert long paragraphs into concise bullet points.
+- Highlight important notes, warnings, tips, and best practices using colored callout boxes.
+- Use comparison tables wherever useful.
+- Add workflow diagrams, architecture diagrams, flowcharts, and timelines whenever they improve understanding.
+- Include high-quality illustrations or placeholders for relevant screenshots.
+- Add page numbers, headers, and footers.
+- Maintain consistent spacing, alignment, and margins throughout.
+- Improve grammar and wording while preserving the original meaning.
+- Remove duplicate or unnecessary content.
+- Add summary sections after major chapters.
+- Add a final conclusion and key takeaways.
+- Include a glossary for technical terms if applicable.
+- Make the document suitable for professional presentations, client delivery, and corporate documentation.
+
+Formatting:
+
+- Use a premium report style similar to AWS, Google Cloud, Microsoft Azure, or Cisco documentation.
+- Maintain excellent readability.
+- Use visually appealing section dividers.
+- Ensure every page looks professionally designed.
+- Use modern cards, tables, badges, and information boxes.
+- Optimize whitespace for a premium appearance.
+
+Output Requirements:
+
+- Produce a polished, publication-quality PDF-ready document.
+- Ensure there are no spelling or grammatical errors.
+- Preserve technical accuracy.
+- The final output should look like it was designed by a professional documentation team.
+
+Goal:
+Create a world-class, visually stunning, enterprise-quality document that impresses clients, managers, and technical professionals.
