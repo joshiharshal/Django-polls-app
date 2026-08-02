@@ -22,8 +22,10 @@ from django.http import JsonResponse, HttpResponse
 
 START_TIME = time.time()
 
+
 def health_check(request):
     return JsonResponse({"status": "healthy", "timestamp": time.time()})
+
 
 def metrics(request):
     uptime = time.time() - START_TIME
@@ -35,6 +37,7 @@ django_polls_uptime_seconds {uptime}
 django_polls_healthy 1
 """
     return HttpResponse(content, content_type="text/plain; version=0.0.4")
+
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="polls/home.html"), name="home"),
